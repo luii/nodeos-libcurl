@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+
+TOOLCHAIN=`node -p "require('nodeos-cross-toolchain')"` || exit 1
+NODE_DIR=`node -p "require('nodeos-nodejs')"` || exit 2
+
+source $TOOLCHAIN/scripts/adjustEnvVars.sh || exit $?
+
+# Set the PATH variable
+PATH=$TOOLCHAIN/bin:$PATH
+
+# Build cross-compiler (if needed)
+(
+  cd $TOOLCHAIN
+  BITS=$BITS CPU=$CPU MACHINE=$MACHINE npm install --production || exit $?
+) || exit $?
+
+#
+# Define mandatory variables for downloading and compiling
+#
+CURL_VERSION=`node -p "require('./package.json').curlVersion"`
+CURL_SHA512SUM="1ce8138c708965d29628f9b3e37cb9cb5c586f82f42091d5e60ba66ddcebcd55dba874c5d903365af0ef94c5c1679430bdd8c0cefbffdf5f7f347d9055824648"
+CURL_URL=https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz
+
+# If not defined, define JOBS and get the amount of cores
+# of your cpu and add 1 to it for n+1 Jobs
+if [[ -z $JOBS ]]; then
+  JOBS=$((`getconf _NPROCESSORS_ONLN` + 1))  
+fi
+
+# remove a array like list of strings recursivly
+function rmStep() {
+  rm -rf "$@"
+}
+
+function err() {
+  rmStep $STEP_DIR
+  exit $1
+}
+
+case $CPU in
+  arm1176jzf-s|cortex-a7) NODE_ARCH=arm   ;;
+  cortex-a53            ) NODE_ARCH=arm64 ;;
+  i[345678]86           ) NODE_ARCH=ia32  ;;
+  x86_64|nocona         ) NODE_ARCH=x64   ;;
+
+  *)
+    echo Unknown CPU "$CPU"
+    exit 1
+  ;;
+esac
+
+OS="`uname`"
+case $OS in
+  'Linux'    ) NODE_PLATFORM=linux   ;;
+  'FreeBSD'  ) NODE_PLATFORM=freebsd ;;
+  'WindowsNT') NODE_PLATFORM=win     ;;
+  'Darwin'   ) NODE_PLATFORM=darwin  ;;
+  'SunOS'    ) NODE_PLATFORM=solaris ;;
+  'AIX'      ) NODE_PLATFORM=linux   ;;
+
+  *)
+    echo Unknown OS "$OS"
+    exit 2
+  ;;
+esac
+
+#
+# Define Step paths
+#
+SRC_DIR=`pwd`/deps/curl
+OBJ_DIR=`pwd`/build/$CPU
+OUT_DIR=`pwd`/out/$CPU
+PREBUILD=`pwd`/prebuilds/nodeos-libcurl-$NODE_PLATFORM-$NODE_ARCH.tar.gz
+
+#
+# Download Curl
+#
+echo -e "${NWL}${GRN}Download curl${CLR}${NWL}"
+
+STEP_DIR=$SRC_DIR
+
+if [[ ! -d $STEP_DIR ]]; then
+  mkdir -p $STEP_DIR || exit 3 # create deps/curl if not exist
+
+  rmStep $OBJ_DIR $OUT_DIR
+  
+  # download and extract into $STEP_DIR
+  curl -L $CURL_URL | tar -xz --strip-components=1 -C $STEP_DIR || err 4
+fi
+
+#
+# Configure and build curl
+#
+
+echo -e "${NWL}${GRN}Configure and build curl${CLR}${NWL}"
+
+STEP_DIR=$OBJ_DIR
+
+if [[ ! -d $STEP_DIR ]]; then
+  (
+    mkdir -p $STEP_DIR &&
+    cd $STEP_DIR       || exit 5
+
+    CC=$TARGET-gcc
+    CXX=$TARGET-g++
+
+    #
+    # --exec-prefix=/lib         
+    $SRC_DIR/configure --with-random=/dev/urandom \
+                       --disable-manual           \
+                       --build=$HOST              \
+                       --host=$HOST               \
+                       --target=$TARGET           \
+                       --prefix=$OUT_DIR          \
+                       --silent                   || err 6
+
+    # build curl
+    make -j$JOBS &&
+    make install || exit 7
+
+    # Strip "inessential information" from executable
+    # binary programs and object files
+    $TARGET-strip $OUT_DIR/lib/*
+
+    # Remove `share` folder because there is only some manuals
+    rm -rf $OUT_DIR/share
+  ) || err $?
+fi
+
+#
+# Pack libcurl in a `node-gyp` compatible way
+#
+
+STEP_DIR=$PREBUILD
+
+mkdir -p prebuilds                    &&
+tar -cf - $OUT_DIR | gzip > $STEP_DIR || err 8
