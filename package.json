@@ -1,0 +1,40 @@
+{
+  "name": "nodeos-libcurl",
+  "version": "0.0.1",
+  "curlVersion": "7.57.0",
+  "description": "Generates a shared curl library for NodeOS ",
+  "main": "index.js",
+  "scripts": {
+    "install": "prebuild-install https://github.com/luii/nodeos-libcurl/releases/download/v{version}/nodeos-libcurl-{platform}-{arch}.tar.gz || npm run build",
+    "build": "scripts/build",
+    "unbuild": "scripts/unbuild",
+    "prebuilds": "scripts/prebuilds",
+    "BigRedButton": "scripts/prebuilds"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luii/nodeos-libcurl.git"
+  },
+  "dependencies": {
+    "prebuild-install": "^2.4.1"
+  },
+  "devDependencies": {
+    "nodeos-cross-toolchain": "^1.0.0-RC3.1",
+    "nodeos-nodejs": "^8.4.0"
+  },
+  "keywords": [
+    "curl",
+    "libcurl",
+    "nodeos"
+  ],
+  "author": {
+    "email": "czarnetzki.philipp@protonmail.ch",
+    "name": "Philipp 'luii' Czarnetzki",
+    "url": "https://github.com/luii"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luii/nodeos-libcurl/issues"
+  },
+  "homepage": "https://github.com/luii/nodeos-libcurl#readme"
+}
