@@ -57,3 +57,10 @@ typings/
 # dotenv environment variables file
 .env
 
+# prebuilds directory
+prebuilds/
+
+# Additional directories
+build/
+deps/
+out/
