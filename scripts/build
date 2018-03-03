@@ -102,11 +102,8 @@ if [[ ! -d $STEP_DIR ]]; then
     mkdir -p $STEP_DIR &&
     cd $STEP_DIR       || exit 5
 
-    CC=$TARGET-gcc
-    CXX=$TARGET-g++
-
-    #
-    # --exec-prefix=/lib         
+    CC=$TARGET-gcc                                \
+    CXX=$TARGET-g++                               \
     $SRC_DIR/configure --with-random=/dev/urandom \
                        --disable-manual           \
                        --build=$HOST              \
