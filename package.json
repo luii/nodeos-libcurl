@@ -5,7 +5,7 @@
   "description": "Generates a shared curl library for NodeOS ",
   "main": "index.js",
   "scripts": {
-    "install": "prebuild-install https://github.com/luii/nodeos-libcurl/releases/download/v{version}/nodeos-libcurl-{platform}-{arch}.tar.gz || npm run build",
+    "install": "prebuild-install https://github.com/luii/nodeos-libcurl/releases/download/v{version}/nodeos-libcurl-{platform}-{arch}.tar.gz || (npm install --ignore-scripts && npm run build)",
     "build": "scripts/build",
     "unbuild": "scripts/unbuild",
     "prebuilds": "scripts/prebuilds",
@@ -19,6 +19,18 @@
     "prebuild-install": "^2.4.1",
     "nodeos-cross-toolchain": "^1.0.0-RC3.1",
     "nodeos-nodejs": "^9.7.0"
+  },
+  "devDependencies": {
+    "del": "^3.0.0",
+    "exit": "^0.1.2",
+    "gulp": "^4.0.0",
+    "gulp-decompress": "^2.0.2",
+    "gulp-downloader": "^1.0.4",
+    "gulp-env": "^0.4.0",
+    "gulp-shell": "^0.6.5",
+    "gulplog": "^1.0.0",
+    "node-uname": "^1.0.1",
+    "shell-source": "^1.1.0"
   },
   "keywords": [
     "curl",
