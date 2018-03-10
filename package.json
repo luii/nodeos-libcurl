@@ -16,11 +16,9 @@
     "url": "git+https://github.com/luii/nodeos-libcurl.git"
   },
   "dependencies": {
-    "prebuild-install": "^2.4.1"
-  },
-  "devDependencies": {
+    "prebuild-install": "^2.4.1",
     "nodeos-cross-toolchain": "^1.0.0-RC3.1",
-    "nodeos-nodejs": "^8.4.0"
+    "nodeos-nodejs": "^9.7.0"
   },
   "keywords": [
     "curl",
