@@ -120,7 +120,7 @@ if [[ ! -d $STEP_DIR ]]; then
 
     # Remove `share` folder because there is only some manuals
     rm -rf $OUT_DIR/share
-  ) || err $?
+  ) || exit $?
 fi
 
 #
