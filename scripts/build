@@ -95,9 +95,9 @@ fi
 
 echo -e "${NWL}${GRN}Configure and build curl${CLR}${NWL}"
 
-STEP_DIR=$OBJ_DIR
+STEP_DIR=$SRC_DIR
 
-if [[ ! -d $STEP_DIR ]]; then
+if [[ -d $STEP_DIR ]]; then
   (
     mkdir -p $STEP_DIR &&
     cd $STEP_DIR       || exit 5
