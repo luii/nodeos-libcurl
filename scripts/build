@@ -108,7 +108,7 @@ if [[ ! -d $STEP_DIR ]]; then
                        --build=$HOST              \
                        --host=$HOST               \
                        --target=$TARGET           \
-                       --prefix=$OUT_DIR          || err 6
+                       --prefix=$OUT_DIR          || exit 6
 
     # build curl
     make -j$JOBS &&
